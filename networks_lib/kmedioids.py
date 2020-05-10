@@ -10,7 +10,7 @@ import numpy as np
 ##   (np.array): initialize by choosing random number of points as medioids
 def random_init(dmat, K):
     num_vertices = dmat.shape[0]
-    medioids = np.arange(10)
+    medioids = np.random.choice(np.arange(num_vertices), size=K, replace=False)
     return medioids
 
 ## TODO: Implement this function
@@ -22,8 +22,7 @@ def random_init(dmat, K):
 ## Output:
 ##   - (np.array): assignment of each point to nearest medioid
 def assign(dmat, mediods):
-    num_vertices = dmat.shape[0]
-    return np.zeros((num_vertices))
+    return np.argmin(dmat[:,mediods], axis=1)
 
 ## TODO: Implement this function
 ##
@@ -36,7 +35,14 @@ def assign(dmat, mediods):
 ##   (np.array): indices of selected medioids
 def get_medioids(dmat, assignment, K):
     mediods = np.zeros((K))
-    return mediods
+
+    for k in range(K):
+        assigned = np.nonzero(assignment == k)[0]
+        assert(len(assigned) > 0)
+        
+        dd = dmat[:,assigned][assigned,:]
+        mediods[k] = assigned[np.argmin(np.sum(dd, axis=0))]
+    return mediods.astype(np.int)
 
 ## TODO: Finish implementing this function
 ##
@@ -63,7 +69,8 @@ def kmedioids(dmat, K, niter=10):
         it += 1
         old_medioids = medioids
         
-        # finish implementing this section
+        assignment = assign(dmat, medioids)
+        medioids = get_medioids(dmat, assignment, K)
 
     return assignment
         

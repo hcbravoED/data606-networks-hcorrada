@@ -25,7 +25,7 @@ def girvan_newman(mat, K):
     work_mat = mat.copy()
     
     components = get_components(mat)
-       
+    
     while len(components) < K:
         # compute edge betweenness (one component at a time)
         eb = np.zeros((num_vertices, num_vertices))
@@ -36,17 +36,13 @@ def girvan_newman(mat, K):
                 eb[vertices[i], vertices] = cur_eb[i, :]
                 
         # remove edge and get components
-        # YOU NEED TO FINISH THIS PART
-        
-        # These lines is for testing only, remove in your solution
-        components = []
-        vertices_per_component = math.ceil( num_vertices / K )
-        for i in range(K):
-            start = i * vertices_per_component
-            end = min(start+vertices_per_component, num_vertices-1)
-            components.append(np.arange(end, start, -1))
-            
+        u, v = np.unravel_index(np.argmax(eb), eb.shape)
+        work_mat[u,v] = 0
+        work_mat[v,u] = 0
+        components = get_components(work_mat)
+    
     return components_to_assignment(components, num_vertices)
+
 
 ## Turn list of components to list of assignments
 ##
@@ -62,4 +58,4 @@ def components_to_assignment(components, num_vertices):
     for vertices in components:
         assign[vertices] = cur_label
         cur_label += 1
-    return assign.tolist()
+    return assign.astype(np.int).tolist()
